@@ -1,13 +1,14 @@
-import { useRef, useState,useEffect } from 'react'
+import { useRef, useState, useEffect } from 'react'
 import './App.css'
 import { FaEdit } from "react-icons/fa";
-import { MdAddCircleOutline, MdOutlineDoneOutline } from "react-icons/md";
+import { MdAddCircleOutline, MdDone, MdOutlineDoneOutline } from "react-icons/md";
 import { FaDeleteLeft } from 'react-icons/fa6';
 
 
 function App() {
   const [todo, setTodo] = useState([])
   const [edit, setEdit] = useState(false)
+  const [done, setdone] = useState(false)
   const [editIndex, setEditIndex] = useState(0)
 
   useEffect(() => {
@@ -19,7 +20,7 @@ function App() {
   }, []);
 
   useEffect(() => {
-    localStorage.setItem('todos',JSON.stringify(todo))
+    localStorage.setItem('todos', JSON.stringify(todo))
   }, [todo]);
   const inputRef = useRef(null)
   const addTask = () => {
@@ -27,7 +28,7 @@ function App() {
       alert("Empty input field insert text")
     }
     else {
-      setTodo([...todo, inputRef.current.value])
+      setTodo([...todo,{text:inputRef.current.value,done:false}])
       inputRef.current.value = ""
     }
   }
@@ -42,20 +43,26 @@ function App() {
     if (!edit) {
       setEdit(true)
       setEditIndex(index)
-      inputRef.current.value = todo[index]
+      inputRef.current.value = todo[index].text
     }
     else {
-      alert(`You are already editing Task no ${editIndex+1} finish it editing first`)
+      alert(`You are already editing Task no ${editIndex + 1} finish it editing first`)
     }
   }
   const updateTodo = () => {
     if (edit) {
-      const newTodo=[...todo]
-      newTodo[editIndex] = inputRef.current.value
+      const newTodo = [...todo]
+      newTodo[editIndex].text = inputRef.current.value
       setTodo(newTodo)
       setEdit(false)
       inputRef.current.value = ""
     }
+  }
+
+  const donetodo = (index) => {
+    const newTodo=[...todo]
+    newTodo[index].done= !newTodo[index].done
+    setTodo(newTodo)
   }
   return (
     <>
@@ -72,7 +79,7 @@ function App() {
           {todo.map((item, index) => (
             <span key={index} className='flex justify-between items-center border p-2'>
               <h1>{index + 1}</h1>
-              <h1 key={index}>{item}</h1>
+              <h1 className={item.done ? 'line-through ':""} key={index}>{item.text}</h1>
               <div className='ml-10 gap-5 flex flex-row-reverse'>
                 <button onClick={() => deleteTodo(index)}>
                   <FaDeleteLeft />
@@ -80,6 +87,7 @@ function App() {
                 <button onClick={() => editTodo(index)}>
                   <FaEdit />
                 </button>
+                <button onClick={()=> donetodo(index)}><MdDone /></button>
               </div>
             </span>
           ))}
